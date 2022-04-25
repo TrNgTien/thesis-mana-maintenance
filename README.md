@@ -22,6 +22,11 @@ yarn install
 cd frontend
 yarn install
 ```
+A Kubernetes cluster is also required. Using Minikube is advised. It can be easily installed by following the link below.
+
+`https://minikube.sigs.k8s.io/docs/start/`
+
+For simplicity's sake, the default K8S is used so no other configuration is required.
 
 ## Start the project
 
