@@ -35,7 +35,8 @@
     "prestart": "tsc && yarn copy-scripts",
     "start": "node --experimental-modules --es-module-specifier-resolution=node dist/server.js",
     "lint": "eslint . --ext .ts --fix",
-    "copy-scripts": "(if not exist dist\\scripts mkdir dist\\scripts) && copy src\\scripts\\*.bat dist\\scripts\\"
+    "check-exist-dist": "",
+    "copy-scripts": "([[ ! -f /dist/scripts ]] && mkdir dist/scripts) && cp src/scripts/*.bat dist/scripts/"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.9.1",
