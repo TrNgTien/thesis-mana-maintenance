@@ -42,7 +42,7 @@ const __dirname = path.resolve();
 const server = new ApolloServer({
 	typeDefs: fs.readFileSync(path.join(__dirname, 'src/resources/schema.graphql'), 'utf-8'),
 	resolvers,
-	context: ({req, res}) => {
+	context: ({ req, res }) => {
 		return {
 			...req,
 			...res,
@@ -67,12 +67,11 @@ app.use(cookieParser())
 const PORT = process.env.PORT || 4000;
 
 const corsOptions = {
-	origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+	origin: ['http://localhost:3000' || process.env.CLIENT_ORIGIN],
 	credentials: true,
 	allowedHeaders: ['Content-Type', 'Authorization']
 }
-
-server.applyMiddleware({app, cors: corsOptions});
+server.applyMiddleware({ app, cors: corsOptions });
 
 app.listen(PORT, () => {
 	console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)

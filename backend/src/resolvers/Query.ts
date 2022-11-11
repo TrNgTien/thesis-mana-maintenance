@@ -11,7 +11,7 @@ interface NamespacedObject {
 	[key: string]: string,
 }
 
-export const allUsers = async (parent, args, context: {prisma: PrismaClient}, info): Promise<Array<GQLUser>> => {
+export const allUsers = async (parent, args, context: { prisma: PrismaClient }, info): Promise<Array<GQLUser>> => {
 	const users = await context.prisma.user.findMany({
 		where: {
 			active: true,
@@ -20,11 +20,11 @@ export const allUsers = async (parent, args, context: {prisma: PrismaClient}, in
 			name: "asc"
 		}
 	});
-	
+
 	return users;
 }
 
-export const getUserById = async (parent: any, args: { id: string; }, context: {prisma: PrismaClient}, info: any): Promise<GQLUser> => {
+export const getUserById = async (parent: any, args: { id: string; }, context: { prisma: PrismaClient }, info: any): Promise<GQLUser> => {
 	const user = await context.prisma.user.findFirst({
 		where: {
 			id: args.id,
@@ -35,7 +35,7 @@ export const getUserById = async (parent: any, args: { id: string; }, context: {
 	return user;
 }
 
-export const allTheses = async (parent, args, context: {prisma: PrismaClient}, info): Promise<Array<GQLThesis>> => {
+export const allTheses = async (parent, args, context: { prisma: PrismaClient }, info): Promise<Array<GQLThesis>> => {
 	const theses = await context.prisma.thesis.findMany({
 		orderBy: {
 			title: "asc"
@@ -48,7 +48,7 @@ export const allTheses = async (parent, args, context: {prisma: PrismaClient}, i
 				}
 			},
 			namespace: true
-		}	
+		}
 	});
 
 	return theses.map(thesis => {
@@ -60,7 +60,7 @@ export const allTheses = async (parent, args, context: {prisma: PrismaClient}, i
 			supervisorName: thesis.supervisorName,
 			semester: thesis.semester,
 			summary: thesis.summary,
-			...(thesis.report && {report: thesis.report.toString('base64')}),
+			...(thesis.report && { report: thesis.report.toString('base64') }),
 			namespace: {
 				name: thesis.namespace.name,
 			},
@@ -78,7 +78,7 @@ export const allTheses = async (parent, args, context: {prisma: PrismaClient}, i
 	});
 }
 
-export const getThesisById = async (parent: any, args: { id: string; }, context: {prisma: PrismaClient}, info: any): Promise<GQLThesis> => {
+export const getThesisById = async (parent: any, args: { id: string; }, context: { prisma: PrismaClient }, info: any): Promise<GQLThesis> => {
 	const thesis = await context.prisma.thesis.findUnique({
 		where: {
 			id: args.id
@@ -102,7 +102,7 @@ export const getThesisById = async (parent: any, args: { id: string; }, context:
 		supervisorName: thesis.supervisorName,
 		semester: thesis.semester,
 		summary: thesis.summary,
-		...(thesis.report && {report: thesis.report.toString('base64')}),
+		...(thesis.report && { report: thesis.report.toString('base64') }),
 		namespace: {
 			name: thesis.namespace.name,
 		},
@@ -119,24 +119,26 @@ export const getThesisById = async (parent: any, args: { id: string; }, context:
 	}
 }
 
-export const allNamespaces = async (parent, args, context, info): Promise<GQLNamespace[]> => {
-	return await coreAPI.getNamespaces();
+export const allNamespaces = async (parent, args, context: { prisma: PrismaClient }, info): Promise<GQLNamespace[]> => {
+	const nameSpace = await coreAPI.getNamespaces();
+	const nameSpaceFromDb = await context.prisma.namespace.findMany({});
+	return nameSpace.concat(nameSpaceFromDb)
 }
 
 export const allPods = async (parent, args: NamespacedObject, context, info): Promise<GQLPod[]> => {
 	const podMetas = await coreAPI.getPodMetasInNamespace(args.namespace);
 
-	const pods = podMetas.map(podMeta => <GQLPod> {
+	const pods = podMetas.map(podMeta => <GQLPod>{
 		meta: podMeta
 	});
 
-	return pods;	
+	return pods;
 }
 
 export const allDeployments = async (parent, args: NamespacedObject, context, info): Promise<GQLDeployment[]> => {
 	const dplMetas = await appAPI.getDeploymentMetasInNamespace(args.namespace);
 
-	const deployments = dplMetas.map(dplMeta => <GQLDeployment> {
+	const deployments = dplMetas.map(dplMeta => <GQLDeployment>{
 		meta: dplMeta
 	});
 
@@ -146,7 +148,7 @@ export const allDeployments = async (parent, args: NamespacedObject, context, in
 export const allStatefulSets = async (parent, args: NamespacedObject, context, info): Promise<GQLStatefulSet[]> => {
 	const sfsMetas = await appAPI.getStatefulSetMetasInNamespace(args.namespace);
 
-	const statefulSets = sfsMetas.map(sfsMeta => <GQLStatefulSet> {
+	const statefulSets = sfsMetas.map(sfsMeta => <GQLStatefulSet>{
 		meta: sfsMeta
 	});
 
@@ -156,7 +158,7 @@ export const allStatefulSets = async (parent, args: NamespacedObject, context, i
 export const allServices = async (parent, args: NamespacedObject, context, info): Promise<GQLService[]> => {
 	const serviceMetas = await coreAPI.getServiceMetasInNamespace(args.namespace);
 
-	const services = serviceMetas.map(serviceMeta => <GQLService> {
+	const services = serviceMetas.map(serviceMeta => <GQLService>{
 		meta: serviceMeta
 	});
 
@@ -166,7 +168,7 @@ export const allServices = async (parent, args: NamespacedObject, context, info)
 export const allConfigMaps = async (parent, args: NamespacedObject, context, info): Promise<GQLConfigMap[]> => {
 	const cfgMapMetas = await coreAPI.getConfigMapMetasInNamespace(args.namespace);
 
-	const configMaps = cfgMapMetas.map(cfgMapMeta => <GQLConfigMap> {
+	const configMaps = cfgMapMetas.map(cfgMapMeta => <GQLConfigMap>{
 		meta: cfgMapMeta
 	});
 
@@ -176,7 +178,7 @@ export const allConfigMaps = async (parent, args: NamespacedObject, context, inf
 export const allSecrets = async (parent, args: NamespacedObject, context, info): Promise<GQLSecret[]> => {
 	const secretMetas = await coreAPI.getSecretMetasInNamespace(args.namespace);
 
-	const secrets = secretMetas.map(secretMeta => <GQLSecret> {
+	const secrets = secretMetas.map(secretMeta => <GQLSecret>{
 		meta: secretMeta
 	});
 
@@ -186,7 +188,7 @@ export const allSecrets = async (parent, args: NamespacedObject, context, info):
 export const allPersistentVolumes = async (parent, args, context, info): Promise<GQLPersistentVolume[]> => {
 	const pvMetas = await coreAPI.getPersistentVolumeMetas();
 
-	const persistentVolumes = pvMetas.map(pvMeta => <GQLPersistentVolume> {
+	const persistentVolumes = pvMetas.map(pvMeta => <GQLPersistentVolume>{
 		meta: pvMeta
 	});
 
@@ -196,14 +198,14 @@ export const allPersistentVolumes = async (parent, args, context, info): Promise
 export const allPersistentVolumeClaims = async (parent, args: NamespacedObject, context, info): Promise<GQLPersistentVolumeClaim[]> => {
 	const pvcMetas = await coreAPI.getPersistentVolumeClaimMetasInNamespace(args.namespace);
 
-	const persistentVolumeClaims = pvcMetas.map(pvcMeta => <GQLPersistentVolumeClaim> {
+	const persistentVolumeClaims = pvcMetas.map(pvcMeta => <GQLPersistentVolumeClaim>{
 		meta: pvcMeta
 	});
 
 	return persistentVolumeClaims;
 }
 
-export const getServiceDemo = async (parent, args: { namespace: string}, context, info): Promise<string> => {
+export const getServiceDemo = async (parent, args: { namespace: string }, context, info): Promise<string> => {
 	const port = await portfinder.getPortPromise();
 
 	if (!port) {
@@ -216,7 +218,7 @@ export const getServiceDemo = async (parent, args: { namespace: string}, context
 		throw new Error('Namespace not found');
 	}
 
-	
+
 	const deployments = await appAPI.getDeploymentMetasInNamespace(args.namespace);
 	deployments.forEach(async (dplMeta) => {
 		await appAPI.scaleDeployment(args.namespace, dplMeta.name, 1);
@@ -230,15 +232,15 @@ export const getServiceDemo = async (parent, args: { namespace: string}, context
 		return await coreAPI.getServiceInfo(args.namespace, serviceMeta.name);
 	}))).find(service => service.type === 'LoadBalancer');
 
-	const pf = exec(`dist\\scripts\\portForward.bat ${service.meta.name} ${port} ${service.ports[0].targetPort} ${args.namespace}`, 
-	(err, stdout, stderr) => {
-		if (err) {
-			console.error(err);
-			pf.kill();
-		}
-		console.log(stdout);
-		console.log(stderr);
-	});
+	const pf = exec(`dist\\scripts\\portForward.bat ${service.meta.name} ${port} ${service.ports[0].targetPort} ${args.namespace}`,
+		(err, stdout, stderr) => {
+			if (err) {
+				console.error(err);
+				pf.kill();
+			}
+			console.log(stdout);
+			console.log(stderr);
+		});
 
 	setTimeout(pf.kill, K8S_TIMEOUT);
 
